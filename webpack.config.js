@@ -13,17 +13,9 @@ var package = require('./package.json'),
 	dependsExternalModules = Object.keys(package.dependencies || {}),
 	externalModules = {};
 
-var UpperCamelCase = function(name) {
-	return name.split('-').map(function(text) {
-		return text.charAt(0).toUpperCase() + text.slice(1)
-	}).join('');
-};
-
 dependsExternalModules.forEach(function(module) {
-	externalModules[module] = /^[^-]+-[^-]+$/.test(module) ? UpperCamelCase(module) : module;
+	externalModules[module] = module;
 });
-
-console.log(externalModules);
 
 module.exports = {
 	entry: {
@@ -32,7 +24,7 @@ module.exports = {
 	output: {
 		path: PATHS.build,
 		filename: libraryName + '.js',
-		library: UpperCamelCase(libraryName),
+		library: libraryName,
 		libraryTarget: 'umd'
 	},
 	module: {
