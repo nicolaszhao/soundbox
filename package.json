@@ -20,7 +20,7 @@
     "clean-webpack-plugin": "^0.1.10"
   },
   "dependencies": {
-    "events-trigger": "^1.1.2",
+    "events-trigger": "^1.2.0",
     "lodash": "^4.15.0"
   },
   "repository": {

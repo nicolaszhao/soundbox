@@ -8,18 +8,32 @@ var PATHS = {
 	build: path.join(__dirname, 'dist')
 };
 
-var libraryName = 'audio-engine';
+var package = require('./package.json'),
+	libraryName = package.name,
+	dependsExternalModules = Object.keys(package.dependencies || {}),
+	externalModules = {};
+
+var UpperCamelCase = function(name) {
+	return name.split('-').map(function(text) {
+		return text.charAt(0).toUpperCase() + text.slice(1)
+	}).join('');
+};
+
+dependsExternalModules.forEach(function(module) {
+	externalModules[module] = /^[^-]+-[^-]+$/.test(module) ? UpperCamelCase(module) : module;
+});
+
+console.log(externalModules);
 
 module.exports = {
 	entry: {
-		app: path.join(PATHS.app, 'player.js')
+		app: path.join(PATHS.app, 'index.js')
 	},
 	output: {
 		path: PATHS.build,
 		filename: libraryName + '.js',
-		library: libraryName,
-		libraryTarget: 'umd',
-		umdNamedDefine: true
+		library: UpperCamelCase(libraryName),
+		libraryTarget: 'umd'
 	},
 	module: {
 		loaders: [
@@ -31,7 +45,7 @@ module.exports = {
 		]
 	},
 	plugins: [
-		new webpack.IgnorePlugin(/(?:lodash|events-trigger)/),
 		new CleanWebpackPlugin([PATHS.build])
-	]
+	],
+	externals: externalModules
 };

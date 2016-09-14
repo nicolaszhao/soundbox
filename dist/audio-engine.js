@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
+		module.exports = factory(require("lodash"), require("EventsTrigger"));
 	else if(typeof define === 'function' && define.amd)
-		define("audio-engine", [], factory);
+		define(["lodash", "EventsTrigger"], factory);
 	else if(typeof exports === 'object')
-		exports["audio-engine"] = factory();
+		exports["AudioEngine"] = factory(require("lodash"), require("EventsTrigger"));
 	else
-		root["audio-engine"] = factory();
-})(this, function() {
+		root["AudioEngine"] = factory(root["lodash"], root["EventsTrigger"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -72,15 +72,15 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 	});
 
-	var _lodash = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"lodash\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _lodash = __webpack_require__(2);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
-	var _eventsTrigger = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"events-trigger\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _eventsTrigger = __webpack_require__(3);
 
 	var _eventsTrigger2 = _interopRequireDefault(_eventsTrigger);
 
-	var _core = __webpack_require__(2);
+	var _core = __webpack_require__(4);
 
 	var _core2 = _interopRequireDefault(_core);
 
@@ -371,6 +371,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 2 */
+/***/ function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -381,7 +393,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _eventsTrigger = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"events-trigger\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _eventsTrigger = __webpack_require__(3);
 
 	var _eventsTrigger2 = _interopRequireDefault(_eventsTrigger);
 
