@@ -4,9 +4,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define(["lodash", "events-trigger"], factory);
 	else if(typeof exports === 'object')
-		exports["audio-engine"] = factory(require("lodash"), require("events-trigger"));
+		exports["AudioEngine"] = factory(require("lodash"), require("events-trigger"));
 	else
-		root["audio-engine"] = factory(root["lodash"], root["events-trigger"]);
+		root["AudioEngine"] = factory(root["lodash"], root["EventsTrigger"]);
 })(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
