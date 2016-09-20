@@ -1,6 +1,6 @@
 {
   "name": "audio-engine",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "html5 audio player engine",
   "main": "./dist/audio-engine.js",
   "scripts": {
