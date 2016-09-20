@@ -179,20 +179,20 @@ return /******/ (function(modules) { // webpackBootstrap
 		}, {
 			key: 'setDuration',
 			value: function setDuration(duration) {
-				this.duration = time2str(duration);
+				this.duration = duration;
 			}
 		}]);
 
 		return Song;
 	}(_eventsTrigger2.default);
 
-	var AudioPlayer = function (_Events2) {
-		_inherits(AudioPlayer, _Events2);
+	var Engine = function (_Events2) {
+		_inherits(Engine, _Events2);
 
-		function AudioPlayer() {
-			_classCallCheck(this, AudioPlayer);
+		function Engine() {
+			_classCallCheck(this, Engine);
 
-			var _this2 = _possibleConstructorReturn(this, (AudioPlayer.__proto__ || Object.getPrototypeOf(AudioPlayer)).call(this));
+			var _this2 = _possibleConstructorReturn(this, (Engine.__proto__ || Object.getPrototypeOf(Engine)).call(this));
 
 			_this2.core = new _core2.default();
 			_this2.list = [];
@@ -202,7 +202,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			return _this2;
 		}
 
-		_createClass(AudioPlayer, [{
+		_createClass(Engine, [{
 			key: 'init',
 			value: function init() {
 				var _this3 = this;
@@ -223,7 +223,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						return _this3.core.stop();
 					}
 
-					_this3.trigger('positionchange.' + _this3.cur, time2str(currentTime), playedPercent || 0);
+					_this3.trigger('positionchange.' + _this3.cur, currentTime, playedPercent || 0);
 				}).on('statechange', function (state) {
 					_this3.trigger('statechange.' + _this3.cur, state);
 				});
@@ -342,12 +342,20 @@ return /******/ (function(modules) { // webpackBootstrap
 					this.core.setCurrentPosition(time);
 				}
 			}
+
+			// to: '00:00'
+
+		}, {
+			key: 'formatTime',
+			value: function formatTime(time) {
+				return time2str(time);
+			}
 		}]);
 
-		return AudioPlayer;
+		return Engine;
 	}(_eventsTrigger2.default);
 
-	exports.default = AudioPlayer;
+	exports.default = Engine;
 
 /***/ },
 /* 1 */
@@ -409,13 +417,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var AudioCore = function (_Events) {
-		_inherits(AudioCore, _Events);
+	var Core = function (_Events) {
+		_inherits(Core, _Events);
 
-		function AudioCore() {
-			_classCallCheck(this, AudioCore);
+		function Core() {
+			_classCallCheck(this, Core);
 
-			var _this = _possibleConstructorReturn(this, (AudioCore.__proto__ || Object.getPrototypeOf(AudioCore)).call(this));
+			var _this = _possibleConstructorReturn(this, (Core.__proto__ || Object.getPrototypeOf(Core)).call(this));
 
 			var audio = new Audio();
 
@@ -431,7 +439,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			return _this;
 		}
 
-		_createClass(AudioCore, [{
+		_createClass(Core, [{
 			key: 'init',
 			value: function init() {
 				var that = this,
@@ -665,10 +673,10 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 		}]);
 
-		return AudioCore;
+		return Core;
 	}(_eventsTrigger2.default);
 
-	exports.default = AudioCore;
+	exports.default = Core;
 
 /***/ }
 /******/ ])
