@@ -160,6 +160,8 @@ class Engine extends Events {
 				break;
 			}
 		}
+
+		return this;
 	}
 
 	play(song) {
@@ -202,6 +204,7 @@ class Engine extends Events {
 
 	pause() {
 		this.core.pause();
+		return this;
 	}
 
 	setVolume(song, volume) {
@@ -210,6 +213,7 @@ class Engine extends Events {
 		}
 
 		song.setVolume(volume);
+		return this;
 	}
 
 	setMute(song, muted) {
@@ -218,12 +222,14 @@ class Engine extends Events {
 		}
 
 		song.setMute(muted);
+		return this;
 	}
 
 	setPosition(song, time) {
 		if (song.id === this.cur) {
 			this.core.setCurrentPosition(time);
 		}
+		return this;
 	}
 
 	// to: '00:00'

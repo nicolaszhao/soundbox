@@ -273,6 +273,8 @@ return /******/ (function(modules) { // webpackBootstrap
 						break;
 					}
 				}
+
+				return this;
 			}
 		}, {
 			key: 'play',
@@ -316,6 +318,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			key: 'pause',
 			value: function pause() {
 				this.core.pause();
+				return this;
 			}
 		}, {
 			key: 'setVolume',
@@ -325,6 +328,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 
 				song.setVolume(volume);
+				return this;
 			}
 		}, {
 			key: 'setMute',
@@ -334,6 +338,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 
 				song.setMute(muted);
+				return this;
 			}
 		}, {
 			key: 'setPosition',
@@ -341,6 +346,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				if (song.id === this.cur) {
 					this.core.setCurrentPosition(time);
 				}
+				return this;
 			}
 
 			// to: '00:00'
