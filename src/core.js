@@ -1,7 +1,7 @@
 import Events from 'events-trigger';
 import STATES from './states';
 
-class AudioCore extends Events {
+class Core extends Events {
 	constructor() {
 		super();
 
@@ -234,4 +234,4 @@ class AudioCore extends Events {
 
 }
 
-export default AudioCore;
+export default Core;

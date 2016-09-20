@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import Events from 'events-trigger';
-import AudioCore from './core';
+import Core from './core';
 
 let id = 0;
 
@@ -75,15 +75,15 @@ class Song extends Events {
 	}
 
 	setDuration(duration) {
-		this.duration = time2str(duration);
+		this.duration = duration;
 	}
 }
 
-class AudioPlayer extends Events {
+class Engine extends Events {
 	constructor() {
 		super();
 
-		this.core = new AudioCore();
+		this.core = new Core();
 		this.list = [];
 		this.cur = '';
 
@@ -109,7 +109,7 @@ class AudioPlayer extends Events {
 					return this.core.stop();
 				}
 
-				this.trigger(`positionchange.${this.cur}`, time2str(currentTime), playedPercent || 0);
+				this.trigger(`positionchange.${this.cur}`, currentTime, playedPercent || 0);
 			})
 			.on('statechange', (state) => {
 				this.trigger(`statechange.${this.cur}`, state);
@@ -225,7 +225,12 @@ class AudioPlayer extends Events {
 			this.core.setCurrentPosition(time);
 		}
 	}
+
+	// to: '00:00'
+	formatTime(time) {
+		return time2str(time);
+	}
 }
 
 export {default as STATES} from './states';
-export default AudioPlayer;
+export default Engine;
