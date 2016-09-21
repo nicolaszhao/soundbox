@@ -186,46 +186,53 @@ return /******/ (function(modules) { // webpackBootstrap
 		return Song;
 	}(_eventsTrigger2.default);
 
-	var Engine = function (_Events2) {
-		_inherits(Engine, _Events2);
-
+	var Engine = function () {
 		function Engine() {
 			_classCallCheck(this, Engine);
 
-			var _this2 = _possibleConstructorReturn(this, (Engine.__proto__ || Object.getPrototypeOf(Engine)).call(this));
+			this.core = new _core2.default();
+			this.list = [];
+			this.cur = '';
 
-			_this2.core = new _core2.default();
-			_this2.list = [];
-			_this2.cur = '';
-
-			_this2.init();
-			return _this2;
+			this.init();
 		}
 
 		_createClass(Engine, [{
 			key: 'init',
 			value: function init() {
-				var _this3 = this;
+				var _this2 = this;
 
 				this.core.on('progress', function (bufferedPercent) {
-					_this3.trigger('progress.' + _this3.cur, bufferedPercent);
+					var song = _this2.findSong(_this2.cur);
+					if (song) {
+						song.trigger('progress', bufferedPercent);
+					}
 				}).on('error', function (_ref) {
 					var code = _ref.code;
 
-					var song = _lodash2.default.find(_this3.list, { id: _this3.cur }),
-					    message = '播放资源：' + song.url + '发生错误，\n\t\t\t\t\t\t错误码：' + code + '，请到这里：http://www.w3school.com.cn/tags/av_prop_error.asp查找相应的信息。';
+					var song = _this2.findSong(_this2.cur),
+					    message = void 0;
 
-					_this3.trigger('error.' + _this3.cur, new Error(message));
-				}).on('positionchange', function (currentTime, playedPercent) {
-					var song = _lodash2.default.find(_this3.list, { id: _this3.cur });
+					if (song) {
+						message = '播放资源：' + song.url + '发生错误，\n\t\t\t\t\t\t错误码：' + code + '，请到这里：http://www.w3school.com.cn/tags/av_prop_error.asp查找相应的信息。';
 
-					if (song.endTime && currentTime >= song.endTime) {
-						return _this3.core.stop();
+						song.trigger('error', new Error(message));
 					}
+				}).on('positionchange', function (currentTime, playedPercent) {
+					var song = _this2.findSong(_this2.cur);
 
-					_this3.trigger('positionchange.' + _this3.cur, currentTime, playedPercent || 0);
+					if (song) {
+						if (song.endTime && currentTime >= song.endTime) {
+							return _this2.core.stop();
+						}
+
+						song.trigger('positionchange', currentTime, playedPercent || 0);
+					}
 				}).on('statechange', function (state) {
-					_this3.trigger('statechange.' + _this3.cur, state);
+					var song = _this2.findSong(_this2.cur);
+					if (song) {
+						song.trigger('statechange', state);
+					}
 				});
 			}
 		}, {
@@ -245,19 +252,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			key: 'add',
 			value: function add(song) {
 				song = new Song(song);
-
-				this.on('progress.' + song.id, function (bufferedPercent) {
-					song.trigger('progress', bufferedPercent);
-				}).on('error.' + song.id, function (err) {
-					song.trigger('error', err.message);
-				}).on('positionchange.' + song.id, function (currentTime, playedPercent) {
-					song.trigger('positionchange', currentTime, playedPercent);
-				}).on('statechange.' + song.id, function (state) {
-					song.trigger('statechange', state);
-				});
-
 				this.list.push(song);
-
 				return song;
 			}
 		}, {
@@ -279,37 +274,37 @@ return /******/ (function(modules) { // webpackBootstrap
 		}, {
 			key: 'play',
 			value: function play(song) {
-				var _this4 = this;
+				var _this3 = this;
 
 				var curSong = void 0,
 				    adjustCore = function adjustCore(song) {
-					_this4.core.setCurrentPosition(song.startTime).setVolume(song.volume).setMute(song.muted);
+					_this3.core.setCurrentPosition(song.startTime).setVolume(song.volume).setMute(song.muted);
 				};
 
 				return new Promise(function (resolve) {
-					if (song.id === _this4.cur) {
-						_this4.core.play();
+					if (song.id === _this3.cur) {
+						_this3.core.play();
 						return resolve(song);
 					}
 
-					if (_this4.cur) {
-						_this4.core.stop();
-						curSong = _lodash2.default.find(_this4.list, { id: _this4.cur });
+					if (_this3.cur) {
+						_this3.core.stop();
+						curSong = _lodash2.default.find(_this3.list, { id: _this3.cur });
 						if (song.url === curSong.url) {
-							_this4.cur = song.id;
-							song.setDuration(_this4.core.getTotalTime());
+							_this3.cur = song.id;
+							song.setDuration(_this3.core.getTotalTime());
 							adjustCore(song);
 
-							_this4.core.play();
+							_this3.core.play();
 							return resolve(song);
 						}
 					}
 
-					_this4.cur = song.id;
-					_this4.core.setUrl(song.url).then(function () {
-						song.setDuration(_this4.core.getTotalTime());
+					_this3.cur = song.id;
+					_this3.core.setUrl(song.url).then(function () {
+						song.setDuration(_this3.core.getTotalTime());
 						adjustCore(song);
-						_this4.core.play();
+						_this3.core.play();
 						resolve(song);
 					});
 				});
@@ -356,10 +351,15 @@ return /******/ (function(modules) { // webpackBootstrap
 			value: function formatTime(time) {
 				return time2str(time);
 			}
+		}, {
+			key: 'findSong',
+			value: function findSong(songId) {
+				return _lodash2.default.find(this.list, { id: songId });
+			}
 		}]);
 
 		return Engine;
-	}(_eventsTrigger2.default);
+	}();
 
 	exports.default = Engine;
 

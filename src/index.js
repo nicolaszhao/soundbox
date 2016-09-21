@@ -79,10 +79,8 @@ class Song extends Events {
 	}
 }
 
-class Engine extends Events {
+class Engine {
 	constructor() {
-		super();
-
 		this.core = new Core();
 		this.list = [];
 		this.cur = '';
@@ -93,26 +91,38 @@ class Engine extends Events {
 	init() {
 		this.core
 			.on('progress', (bufferedPercent) => {
-				this.trigger(`progress.${this.cur}`, bufferedPercent);
+				let song = this.findSong(this.cur);
+				if (song) {
+					song.trigger('progress', bufferedPercent);
+				}
 			})
 			.on('error', ({code}) => {
-				let song = _.find(this.list, {id: this.cur}),
+				let song = this.findSong(this.cur),
+					message;
+
+				if (song) {
 					message = `播放资源：${song.url}发生错误，
 						错误码：${code}，请到这里：http://www.w3school.com.cn/tags/av_prop_error.asp查找相应的信息。`;
 
-				this.trigger(`error.${this.cur}`, new Error(message));
+					song.trigger('error', new Error(message));
+				}
 			})
 			.on('positionchange', (currentTime, playedPercent) => {
-				let song = _.find(this.list, {id: this.cur});
+				let song = this.findSong(this.cur);
 
-				if (song.endTime && currentTime >= song.endTime) {
-					return this.core.stop();
+				if (song) {
+					if (song.endTime && currentTime >= song.endTime) {
+						return this.core.stop();
+					}
+
+					song.trigger('positionchange', currentTime, playedPercent || 0);
 				}
-
-				this.trigger(`positionchange.${this.cur}`, currentTime, playedPercent || 0);
 			})
 			.on('statechange', (state) => {
-				this.trigger(`statechange.${this.cur}`, state);
+				let song = this.findSong(this.cur);
+				if (song) {
+					song.trigger('statechange', state);
+				}
 			});
 	}
 
@@ -129,23 +139,7 @@ class Engine extends Events {
 
 	add(song) {
 		song = new Song(song);
-
-		this
-			.on(`progress.${song.id}`, (bufferedPercent) => {
-				song.trigger('progress', bufferedPercent);
-			})
-			.on(`error.${song.id}`, (err) => {
-				song.trigger('error', err.message);
-			})
-			.on(`positionchange.${song.id}`, (currentTime, playedPercent) => {
-				song.trigger('positionchange', currentTime, playedPercent);
-			})
-			.on(`statechange.${song.id}`, (state) => {
-				song.trigger('statechange', state);
-			});
-
 		this.list.push(song);
-
 		return song;
 	}
 
@@ -235,6 +229,10 @@ class Engine extends Events {
 	// to: '00:00'
 	formatTime(time) {
 		return time2str(time);
+	}
+
+	findSong(songId) {
+		return _.find(this.list, {id: songId});
 	}
 }
 

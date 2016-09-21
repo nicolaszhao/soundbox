@@ -54,7 +54,6 @@ class Core extends Events {
 			playing() {
 				clearTimeout(that.errorTimer);
 				that.setState(STATES.PLAYING);
-
 			},
 			error(e) {
 				clearTimeout(that.errorTimer);
