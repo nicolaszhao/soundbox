@@ -149,8 +149,10 @@ class Engine {
 		while (len--) {
 			if (song.id === this.list[len].id) {
 				song.off();
+				if (song.id === this.cur) {
+					this.core.stop();
+				}
 				this.list.splice(len, 1);
-				this.off('.' + song.id);
 				break;
 			}
 		}
@@ -161,6 +163,7 @@ class Engine {
 	play(song) {
 		let curSong,
 			adjustCore = (song) => {
+				song.setDuration(this.core.getTotalTime());
 				this.core.setCurrentPosition(song.startTime)
 					.setVolume(song.volume)
 					.setMute(song.muted);
@@ -173,13 +176,13 @@ class Engine {
 			}
 
 			if (this.cur) {
+
 				this.core.stop();
 				curSong = _.find(this.list, {id: this.cur});
-				if (song.url === curSong.url) {
-					this.cur = song.id;
-					song.setDuration(this.core.getTotalTime());
-					adjustCore(song);
 
+				if (curSong && curSong.url === song.url) {
+					this.cur = song.id;
+					adjustCore(song);
 					this.core.play();
 					return resolve(song);
 				}
@@ -188,7 +191,6 @@ class Engine {
 			this.cur = song.id;
 			this.core.setUrl(song.url)
 				.then(() => {
-					song.setDuration(this.core.getTotalTime());
 					adjustCore(song);
 					this.core.play();
 					resolve(song);

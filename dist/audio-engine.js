@@ -263,8 +263,10 @@ return /******/ (function(modules) { // webpackBootstrap
 				while (len--) {
 					if (song.id === this.list[len].id) {
 						song.off();
+						if (song.id === this.cur) {
+							this.core.stop();
+						}
 						this.list.splice(len, 1);
-						this.off('.' + song.id);
 						break;
 					}
 				}
@@ -278,6 +280,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				var curSong = void 0,
 				    adjustCore = function adjustCore(song) {
+					song.setDuration(_this3.core.getTotalTime());
 					_this3.core.setCurrentPosition(song.startTime).setVolume(song.volume).setMute(song.muted);
 				};
 
@@ -288,13 +291,13 @@ return /******/ (function(modules) { // webpackBootstrap
 					}
 
 					if (_this3.cur) {
+
 						_this3.core.stop();
 						curSong = _lodash2.default.find(_this3.list, { id: _this3.cur });
-						if (song.url === curSong.url) {
-							_this3.cur = song.id;
-							song.setDuration(_this3.core.getTotalTime());
-							adjustCore(song);
 
+						if (curSong && curSong.url === song.url) {
+							_this3.cur = song.id;
+							adjustCore(song);
 							_this3.core.play();
 							return resolve(song);
 						}
@@ -302,7 +305,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 					_this3.cur = song.id;
 					_this3.core.setUrl(song.url).then(function () {
-						song.setDuration(_this3.core.getTotalTime());
 						adjustCore(song);
 						_this3.core.play();
 						resolve(song);
