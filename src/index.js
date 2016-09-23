@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import Events from 'events-trigger';
 import Core from './core';
 
@@ -178,7 +177,7 @@ class Engine {
 			if (this.cur) {
 
 				this.core.stop();
-				curSong = _.find(this.list, {id: this.cur});
+				curSong = this.list.find(n => n.id === this.cur);
 
 				if (curSong && curSong.url === song.url) {
 					this.cur = song.id;
@@ -234,7 +233,7 @@ class Engine {
 	}
 
 	findSong(songId) {
-		return _.find(this.list, {id: songId});
+		return this.list.find(n => n.id === songId);
 	}
 }
 

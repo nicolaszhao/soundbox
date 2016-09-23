@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("lodash"), require("events-trigger"));
+		module.exports = factory(require("events-trigger"));
 	else if(typeof define === 'function' && define.amd)
-		define(["lodash", "events-trigger"], factory);
+		define(["events-trigger"], factory);
 	else if(typeof exports === 'object')
-		exports["AudioEngine"] = factory(require("lodash"), require("events-trigger"));
+		exports["AudioEngine"] = factory(require("events-trigger"));
 	else
-		root["AudioEngine"] = factory(root["lodash"], root["EventsTrigger"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__) {
+		root["AudioEngine"] = factory(root["EventsTrigger"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_2__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -72,15 +72,11 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 	});
 
-	var _lodash = __webpack_require__(2);
-
-	var _lodash2 = _interopRequireDefault(_lodash);
-
-	var _eventsTrigger = __webpack_require__(3);
+	var _eventsTrigger = __webpack_require__(2);
 
 	var _eventsTrigger2 = _interopRequireDefault(_eventsTrigger);
 
-	var _core = __webpack_require__(4);
+	var _core = __webpack_require__(3);
 
 	var _core2 = _interopRequireDefault(_core);
 
@@ -293,7 +289,9 @@ return /******/ (function(modules) { // webpackBootstrap
 					if (_this3.cur) {
 
 						_this3.core.stop();
-						curSong = _lodash2.default.find(_this3.list, { id: _this3.cur });
+						curSong = _this3.list.find(function (n) {
+							return n.id === _this3.cur;
+						});
 
 						if (curSong && curSong.url === song.url) {
 							_this3.cur = song.id;
@@ -356,7 +354,9 @@ return /******/ (function(modules) { // webpackBootstrap
 		}, {
 			key: 'findSong',
 			value: function findSong(songId) {
-				return _lodash2.default.find(this.list, { id: songId });
+				return this.list.find(function (n) {
+					return n.id === songId;
+				});
 			}
 		}]);
 
@@ -393,12 +393,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 3 */
-/***/ function(module, exports) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
-
-/***/ },
-/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -409,7 +403,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _eventsTrigger = __webpack_require__(3);
+	var _eventsTrigger = __webpack_require__(2);
 
 	var _eventsTrigger2 = _interopRequireDefault(_eventsTrigger);
 

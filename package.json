@@ -22,8 +22,7 @@
     "webpack-merge": "^0.14.1"
   },
   "dependencies": {
-    "events-trigger": "^1.2.3",
-    "lodash": "^4.15.0"
+    "events-trigger": "^1.2.3"
   },
   "repository": {
     "type": "git",
