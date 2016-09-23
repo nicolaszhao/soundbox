@@ -172,6 +172,7 @@ constructor(props) {
 }
 ````
 
+
 3. 创建song实例：
 ````
 componentDidMount() {
@@ -216,6 +217,7 @@ componentDidMount() {
 }
 ````
 
+
 4. 播放暂停状态切换：
 ````
 handlePlay() {
@@ -231,6 +233,7 @@ handlePlay() {
     }
 }
 ````
+
 
 5. render方法中渲染：
 ````
@@ -268,6 +271,7 @@ render() {
     );
 }
 ````
+
 
 6. 销毁song实例：
 ````
