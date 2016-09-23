@@ -4,24 +4,26 @@ HTML5 Audio的高级封装API对象。提供了可在React，Angular等组件化
 
 ## 快速上手
 1. 使用[npm](https://docs.npmjs.com)安装到你的项目中：`npm install --save audio-engine`
+
 2. 使用commonjs或者es6模块方式导入：
-````
-var AudioEngine = require('audio-engine');
-//
-// 或者
-import AudioEngine from 'audio-engine';
-````
+    ````
+    var AudioEngine = require('audio-engine');
+    //
+    // 或者
+    import AudioEngine from 'audio-engine';
+    ````
+
 3. 实例化对象，并创建一首歌曲对象来播放：
-````
-// 在组件构造函数外实例化对象
-let audioEngine = new AudioEngine();
-//
-// 在组件componentDidMount方法中创建song对象
-let song = audioEngine.add({src: 'your-music-url'});
-//
-// 在组件的handler事件中播放song对象
-audioEngine.play(song);
-````
+    ````
+    // 在组件构造函数外实例化对象
+    let audioEngine = new AudioEngine();
+    //
+    // 在组件componentDidMount方法中创建song对象
+    let song = audioEngine.add({src: 'your-music-url'});
+    //
+    // 在组件的handler事件中播放song对象
+    audioEngine.play(song);
+    ````
 
 ## Engine的方法
 
@@ -155,123 +157,123 @@ audioEngine.play(song);
 1. 实例化Engine：`let audioEngine = new AudioEngine()`
 
 2. 组件构造器中定义state：
-````
-constructor(props) {
-    super(props);
+    ````
+    constructor(props) {
+        super(props);
 
-    this.state = {
-        paused: true,
-        buffering: false,
-        progress: 0,
-        buffered: 0,
-        currentTime: 0,
-        duration: 0,
-    };
+        this.state = {
+            paused: true,
+            buffering: false,
+            progress: 0,
+            buffered: 0,
+            currentTime: 0,
+            duration: 0,
+        };
 
-    this.song = null;
-}
-````
+        this.song = null;
+    }
+    ````
 
 3. 创建song实例：
-````
-componentDidMount() {
-    let { src } = this.props;
+    ````
+    componentDidMount() {
+        let { src } = this.props;
 
-    this.song = audioEngine.add({
-        url: src
-    });
-
-    this.song
-        .on('progress', (bufferedPercent) => {
-            this.setState({
-                buffered: bufferedPercent * 100
-            });
-        })
-        .on('error', (err) => {
-            this.setState({
-                errorMessage: err.message
-            });
-        })
-        .on('positionchange', (currentTime, playedPercent) => {
-            this.setState({
-                progress: playedPercent * 100,
-                currentTime: currentTime
-            });
-        })
-        .on('statechange', (state) => {
-            let buffering = false,
-                paused = true;
-
-            if (state === STATES.BUFFERING || state === STATES.PREBUFFER) {
-                buffering = true;
-            } else if (state === STATES.PLAYING) {
-                paused = false;
-            }
-
-            this.setState({
-                buffering,
-                paused
-            });
+        this.song = audioEngine.add({
+            url: src
         });
-}
-````
 
-4. 播放暂停状态切换：
-````
-handlePlay() {
-    if (this.state.paused) {
-        audioEngine.play(this.song)
-            .then((song) => {
+        this.song
+            .on('progress', (bufferedPercent) => {
                 this.setState({
-                    duration: song.duration
+                    buffered: bufferedPercent * 100
+                });
+            })
+            .on('error', (err) => {
+                this.setState({
+                    errorMessage: err.message
+                });
+            })
+            .on('positionchange', (currentTime, playedPercent) => {
+                this.setState({
+                    progress: playedPercent * 100,
+                    currentTime: currentTime
+                });
+            })
+            .on('statechange', (state) => {
+                let buffering = false,
+                    paused = true;
+
+                if (state === STATES.BUFFERING || state === STATES.PREBUFFER) {
+                    buffering = true;
+                } else if (state === STATES.PLAYING) {
+                    paused = false;
+                }
+
+                this.setState({
+                    buffering,
+                    paused
                 });
             });
-    } else {
-        audioEngine.pause();
     }
-}
-````
+    ````
+
+4. 播放暂停状态切换：
+    ````
+    handlePlay() {
+        if (this.state.paused) {
+            audioEngine.play(this.song)
+                .then((song) => {
+                    this.setState({
+                        duration: song.duration
+                    });
+                });
+        } else {
+            audioEngine.pause();
+        }
+    }
+    ````
 
 5. render方法中渲染：
-````
-render() {
-    let { buffered, progress, paused, currentTime, duration, buffering } = this.state,
+    ````
+    render() {
+        let { buffered, progress, paused, currentTime, duration, buffering } = this.state,
 
-        iconType = paused ? 'play-circle-o' : 'pause-circle-o';
+            iconType = paused ? 'play-circle-o' : 'pause-circle-o';
 
-    let wrapperClassName = ['audio-player'];
+        let wrapperClassName = ['audio-player'];
 
-    if (buffering) {
-        wrapperClassName.push('audio-player-state-buffering');
-    }
+        if (buffering) {
+            wrapperClassName.push('audio-player-state-buffering');
+        }
 
-    currentTime = audioEngine.formatTime(currentTime);
-    duration = audioEngine.formatTime(duration);
+        currentTime = audioEngine.formatTime(currentTime);
+        duration = audioEngine.formatTime(duration);
 
-    return (
-        <div className={wrapperClassName.join(' ')}>
-            <div className="audio-player-wrapper">
-                <button className="audio-player-button audio-player-button-play" onClick={() => {this.handlePlay()}}>
-                    <Icon type={iconType} />
-                    <Icon type="loading" />
-                </button>
-                <div className="audio-player-progressbar">
-                    <div className="audio-player-progressbar-playing-value" style={{width: `${progress}%`}}></div>
-                    <div className="audio-player-progressbar-buffering-value" style={{width: `${buffered}%`}}></div>
-                </div>
-                <div className="audio-player-duration">
-                    <span className="audio-player-duration-current">{currentTime}</span>
-                    <span className="audio-player-duration-total">{duration}</span>
+        return (
+            <div className={wrapperClassName.join(' ')}>
+                <div className="audio-player-wrapper">
+                    <button className="audio-player-button audio-player-button-play" onClick={() => {this.handlePlay()}}>
+                        <Icon type={iconType} />
+                        <Icon type="loading" />
+                    </button>
+                    <div className="audio-player-progressbar">
+                        <div className="audio-player-progressbar-playing-value" style={{width: `${progress}%`}}></div>
+                        <div className="audio-player-progressbar-buffering-value" style={{width: `${buffered}%`}}></div>
+                    </div>
+                    <div className="audio-player-duration">
+                        <span className="audio-player-duration-current">{currentTime}</span>
+                        <span className="audio-player-duration-total">{duration}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    );
-}
-````
+        );
+    }
+    ````
 
 6. 销毁song实例：
-````
-componentWillUnmount() {
-    audioEngine.remove(this.song);
-}
-````
+    ````
+    componentWillUnmount() {
+        audioEngine.remove(this.song);
+    }
+    ````
