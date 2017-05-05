@@ -264,10 +264,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				while (len--) {
 					if (song.id === this.list[len].id) {
-						song.off();
 						if (song.id === this.cur) {
 							this.core.stop();
 						}
+						song.off();
 						this.list.splice(len, 1);
 						break;
 					}

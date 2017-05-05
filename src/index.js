@@ -147,23 +147,23 @@ class Engine {
 		this.list.push(song);
 		return song;
 	}
-
-	remove(song) {
-		let len = this.list.length;
-
-		while (len--) {
-			if (song.id === this.list[len].id) {
-				song.off();
-				if (song.id === this.cur) {
-					this.core.stop();
-				}
-				this.list.splice(len, 1);
-				break;
-			}
-		}
-
-		return this;
-	}
+  
+  remove(song) {
+    let len = this.list.length;
+    
+    while (len--) {
+      if (song.id === this.list[len].id) {
+        if (song.id === this.cur) {
+          this.core.stop();
+        }
+        song.off();
+        this.list.splice(len, 1);
+        break;
+      }
+    }
+    
+    return this;
+  }
 
 	play(song) {
 		let curSong,
