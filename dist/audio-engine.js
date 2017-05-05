@@ -52,7 +52,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -210,7 +210,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					    message = void 0;
 
 					if (song) {
-						message = '播放资源：' + song.url + '发生错误，\n\t\t\t\t\t\t错误码：' + code + '，请到这里：http://www.w3school.com.cn/tags/av_prop_error.asp查找相应的信息。';
+						message = '\u64AD\u653E\u8D44\u6E90\uFF1A' + song.url + '\u53D1\u751F\u9519\u8BEF\uFF0C\n\t\t\t\t\t\t\u9519\u8BEF\u7801\uFF1A' + code + '\uFF0C\u8BF7\u5230\u8FD9\u91CC\uFF1Ahttp://www.w3school.com.cn/tags/av_prop_error.asp\u67E5\u627E\u76F8\u5E94\u7684\u4FE1\u606F\u3002';
 
 						song.trigger('error', new Error(message));
 					}
@@ -234,14 +234,20 @@ return /******/ (function(modules) { // webpackBootstrap
 		}, {
 			key: 'reset',
 			value: function reset() {
-				this.cur = '';
+				var len = this.list.length;
+
+				while (len--) {
+					this.list[len].off();
+				}
 				this.list = [];
+				this.cur = '';
+
 				return this;
 			}
 		}, {
 			key: 'destroy',
 			value: function destroy() {
-				this.reset().off();
+				this.reset();
 				this.core.destroy();
 			}
 		}, {
@@ -365,9 +371,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.default = Engine;
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -385,15 +391,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.default = STATES;
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -680,7 +686,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.default = Core;
 
-/***/ }
+/***/ })
 /******/ ])
 });
 ;

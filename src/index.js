@@ -124,15 +124,21 @@ class Engine {
 				}
 			});
 	}
-
-	reset() {
-		this.cur = '';
-		this.list = [];
-		return this;
-	}
+  
+  reset() {
+	  let len = this.list.length;
+	  
+	  while (len--) {
+	    this.list[len].off();
+    }
+    this.list = [];
+    this.cur = '';
+    
+    return this;
+  }
 
 	destroy() {
-		this.reset().off();
+		this.reset();
 		this.core.destroy();
 	}
 
