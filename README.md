@@ -19,7 +19,7 @@ HTML5 Audio的高级封装API对象。提供了可在React，Angular等组件化
     let audioEngine = new AudioEngine();
     //
     // 在组件componentDidMount方法中创建song对象
-    let song = audioEngine.add({src: 'your-music-url'});
+    let song = audioEngine.add({url: 'your-music-url'});
     //
     // 在组件的handler事件中播放song对象
     audioEngine.play(song);
