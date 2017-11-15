@@ -175,11 +175,15 @@ class Engine {
 			};
 
 		return new Promise((resolve) => {
+
+      // 要播放的 song 是之前暂停的那个 song，直接 play 即可
 			if (song.id === this.cur) {
 				this.core.play();
 				return resolve(song);
 			}
 
+      // 当引擎中已经有一个 song 时，需要先停止掉，但发现，接下来要播放的 song 的 url 跟当前的 song 是一样的，那么需要根据新的 song
+      // 的属性调整下，然后再直接播放
 			if (this.cur) {
 
 				this.core.stop();
