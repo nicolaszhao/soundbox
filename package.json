@@ -1,36 +1,54 @@
 {
-  "name": "audio-engine",
+  "name": "@nicolaz/audio",
   "version": "1.2.13",
-  "description": "html5 audio player engine",
-  "main": "./dist/audio-engine.js",
+  "description": "A html5 Audio player core",
+  "main": "dist/audio.cjs.js",
+  "module": "dist/audio.esm.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build:dev": "webpack --progress",
-    "build:prod": "webpack --progress"
+    "build": "rollup -c --environment NODE_ENV:production,INCLUDE_UMD",
+    "prepublishOnly": "npm run build",
+    "postpublish": "git push && git push --tags"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.js": "eslint"
   },
   "keywords": [
     "audio",
-    "engine",
-    "player"
+    "html5"
   ],
-  "author": "Nicolas",
-  "license": "ISC",
+  "author": "NZ",
+  "license": "MIT",
   "devDependencies": {
-    "babel-core": "^6.14.0",
-    "babel-loader": "^6.2.5",
-    "babel-preset-es2015": "^6.14.0",
-    "clean-webpack-plugin": "^0.1.10",
-    "webpack": "^1.15.0",
-    "webpack-merge": "^0.14.1"
-  },
-  "dependencies": {
-    "events-trigger": "^1.2.3"
+    "@hammal/babel-preset-app": "^0.11.0",
+    "@totebox/events": "^2.0.0",
+    "eslint": "^6.0.0",
+    "eslint-config-nicolaz-base": "^0.5.3",
+    "eslint-plugin-import": "^2.18.2",
+    "husky": "^3.1.0",
+    "lint-staged": "^9.4.3",
+    "rollup": "^1.27.2",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-peer-deps-external": "^2.2.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/nicolaszhao/audio-engine.git"
+    "url": "git+ssh://git@github.com/nicolaszhao/audio.git"
   },
   "bugs": {
-    "url": "https://github.com/nicolaszhao/audio-engine/issues"
+    "url": "https://github.com/nicolaszhao/audio/issues"
   },
-  "homepage": "https://github.com/nicolaszhao/audio-engine#readme"
+  "homepage": "https://github.com/nicolaszhao/audio#readme",
+  "files": [
+    "dist"
+  ]
 }

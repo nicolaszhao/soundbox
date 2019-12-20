@@ -1,4 +1,5 @@
-# Audio Engine
+# @nicolaz/audio
+
 HTML5 Audio的高级封装API对象。提供了可在React，Angular等组件化的框架中灵活调用的API。源码使用最流行的ES6语法编写，如果你要修改代码，
 请clone到本地后，自行`npm install`，然后运行`npm run build:dev`打包即可。
 
