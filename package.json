@@ -1,9 +1,9 @@
 {
-  "name": "@nicolaz/audio",
+  "name": "@nicolaz/soundbox",
   "version": "1.2.13",
   "description": "A html5 Audio player core",
-  "main": "dist/audio.cjs.js",
-  "module": "dist/audio.esm.js",
+  "main": "dist/soundbox.cjs.js",
+  "module": "dist/soundbox.esm.js",
   "publishConfig": {
     "access": "public"
   },
@@ -22,6 +22,7 @@
   },
   "keywords": [
     "audio",
+    "audio-player",
     "html5"
   ],
   "author": "NZ",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@hammal/babel-preset-app": "^0.11.0",
     "@totebox/events": "^2.0.0",
+    "@totebox/util": "^0.12.9",
     "eslint": "^6.0.0",
     "eslint-config-nicolaz-base": "^0.5.3",
     "eslint-plugin-import": "^2.18.2",
@@ -42,12 +44,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/nicolaszhao/audio.git"
+    "url": "git+ssh://git@github.com/nicolaszhao/soundbox.git"
   },
   "bugs": {
-    "url": "https://github.com/nicolaszhao/audio/issues"
+    "url": "https://github.com/nicolaszhao/soundbox/issues"
   },
-  "homepage": "https://github.com/nicolaszhao/audio#readme",
+  "homepage": "https://github.com/nicolaszhao/soundbox#readme",
   "files": [
     "dist"
   ]
