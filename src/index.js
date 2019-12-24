@@ -1,251 +1,167 @@
-import Events from 'events-trigger';
-import Core from './core';
+import Engine from './engine';
+import Sound from './sound';
 
-let id = 0;
-
-const uniqueId = function(prefix) {
-	id++;
-	return prefix ? `${prefix}-${id}` : id;
-};
-
-const time2str = function(time) {
-	let floor = Math.floor,
-		r = [],
-		hour, minute, pad, second;
-
-	time = Math.round(time);
-	hour = floor(time / 3600);
-	minute = floor((time - 3600 * hour) / 60);
-	second = time % 60;
-
-	pad = function(source, length) {
-		let nagative, pre, str;
-
-		pre = '';
-		nagative = '';
-
-		if (source < 0) {
-			nagative = '-';
-		}
-
-		str = String(Math.abs(source));
-
-		if (str.length < length) {
-			pre = new Array(length - str.length + 1).join('0');
-		}
-
-		return nagative + pre + str;
-	};
-
-	if (hour) {
-		r.push(hour);
-	}
-
-	r.push(pad(minute, 2));
-	r.push(pad(second, 2));
-
-	return r.join(':');
-};
-
-class Song extends Events {
-	constructor(options) {
-		super();
-
-		options = Object.assign({
-			volume: 100,
-			muted: false
-		}, options);
-
-		this.id = uniqueId('song');
-		this.url = options.url;
-		this.volume = options.volume;
-		this.muted = options.muted;
-		this.startTime = options.startTime || 0;
-		this.endTime = options.endTime || 0;
-		this.duration = 0;
-	}
-
-	setVolume(volume) {
-		this.volume = volume;
-	}
-
-	setMute(muted) {
-		this.muted = muted;
-	}
-
-	setDuration(duration) {
-		this.duration = duration;
-	}
-}
-
-class Engine {
-	constructor() {
-		this.core = new Core();
-		this.list = [];
-		this.cur = '';
-
-		this.init();
-	}
-
-	init() {
-		this.core
-			.on('progress', (bufferedPercent) => {
-				let song = this.findSong(this.cur);
-				if (song) {
-					song.trigger('progress', bufferedPercent);
-				}
-			})
-			.on('error', ({code}) => {
-				let song = this.findSong(this.cur),
-					message;
-
-				if (song) {
-					message = `播放资源：${song.url}发生错误，
-						错误码：${code}，请到这里：http://www.w3school.com.cn/tags/av_prop_error.asp查找相应的信息。`;
-
-					song.trigger('error', new Error(message));
-				}
-			})
-			.on('positionchange', (currentTime, playedPercent) => {
-				let song = this.findSong(this.cur);
-
-				if (song) {
-					if (song.endTime && currentTime >= song.endTime) {
-						return this.core.stop();
-					}
-
-					song.trigger('positionchange', currentTime, playedPercent || 0);
-				}
-			})
-			.on('statechange', (state) => {
-				let song = this.findSong(this.cur);
-				if (song) {
-					song.trigger('statechange', state);
-				}
-			});
-	}
-  
-  reset() {
-	  let len = this.list.length;
-	  
-	  while (len--) {
-	    this.list[len].off();
-    }
-    this.list = [];
-    this.cur = '';
-    
-    return this;
+class Soundbox {
+  constructor() {
+    this.sounds = [];
+    this.currentSound = null;
+    this.engine = this.createEngine();
   }
 
-	destroy() {
-		this.reset();
-		this.core.destroy();
-	}
+  createEngine() {
+    const engine = new Engine();
 
-	add(song) {
-		song = new Song(song);
-		this.list.push(song);
-		return song;
-	}
-  
-  remove(song) {
-    let len = this.list.length;
-    
-    while (len--) {
-      if (song.id === this.list[len].id) {
-        if (song.id === this.cur) {
-          this.core.stop();
-        }
-        song.off();
-        this.list.splice(len, 1);
-        break;
+    engine.on('progress', (bufferedPercent) => {
+      if (this.currentSound) {
+        this.currentSound.trigger('progress', bufferedPercent);
       }
-    }
-    
-    return this;
+    });
+
+    engine.on('canplay', ({ duration }) => {
+      if (this.currentSound) {
+        this.engine.play();
+        this.currentSound.set('duration', duration, { silent: true });
+        this.currentSound.trigger('start', this.currentSound);
+      }
+    });
+
+    engine.on('timeupdate', (currentTime, playedPercent) => {
+      if (this.currentSound) {
+        const { range: [, end] } = this.currentSound;
+        if (end && currentTime >= end) {
+          return engine.stop();
+        }
+        this.currentSound.setPosition(currentTime, { silent: true });
+        this.currentSound.trigger('positionchange', currentTime, playedPercent);
+      }
+    });
+
+    engine.on('statechange', (state) => {
+      if (this.currentSound) {
+        this.currentSound.trigger('statechange', state);
+      }
+    });
+
+    engine.on('error', ({ code }) => {
+      const sound = this.currentSound;
+      if (sound && code) {
+        // 参考：http://www.w3school.com.cn/tags/av_prop_error.asp
+        const messages = {
+          1: 'ABORTED',
+          2: 'NETWORK ERROR',
+          3: 'DECODE ERROR',
+          4: 'SOURCE NOT SUPPORTED',
+        };
+        sound.trigger('error', new Error(messages[code] || `UNKNOWN ERROR, CODE: ${code}`));
+      }
+    });
+
+    return engine;
   }
 
-	play(song) {
-		let curSong,
-			adjustCore = (song) => {
-				song.setDuration(this.core.getTotalTime());
-				this.core.setCurrentPosition(song.startTime)
-					.setVolume(song.volume)
-					.setMute(song.muted);
-			};
+  createSound(soundData) {
+    const sound = new Sound(soundData);
 
-		return new Promise((resolve) => {
+    sound.on('play', (target) => {
+      // 把需要播放的 sound 的相关属性（volume, muted 等）更新到引擎
+      this.setEngineAttrs(target);
 
-      // 要播放的 song 是之前暂停的那个 song，直接 play 即可
-			if (song.id === this.cur) {
-				this.core.play();
-				return resolve(song);
-			}
+      if (this.currentSound) {
+        // 如果期望播放的和之前播放过的是同一个，说明引擎没有切换过音源（比如之前暂停了），可以直接播放
+        if (target === this.currentSound) {
+          this.engine.play();
+          target.trigger('start', target);
+          return;
+        }
 
-      // 当引擎中已经有一个 song 时，需要先停止掉，但发现，接下来要播放的 song 的 url 跟当前的 song 是一样的，那么需要根据新的 song
-      // 的属性调整下，然后再直接播放
-			if (this.cur) {
+        // 如果要触发播放的 sound 不同，则始终应该停止引擎播放音源
+        // 确保播放中的音源可以正常触发事件，比如: timeupdate, statechange 等
+        this.engine.stop();
 
-				this.core.stop();
-				curSong = this.list.find(n => n.id === this.cur);
+        // sound 不同，但音源相同，则直接更新当前播放的 sound 为 target，
+        if (target.src === this.currentSound.src) {
+          this.currentSound = target;
+          this.engine.play();
+          target.set('duration', this.engine.getDuration());
+          target.trigger('start', target);
+          return;
+        }
+      }
 
-				if (curSong && curSong.url === song.url) {
-					this.cur = song.id;
-					adjustCore(song);
-					this.core.play();
-					return resolve(song);
-				}
-			}
+      // 新的音源，则需要重新加载引擎，当可播放时会触发引擎 `canplay` 事件
+      this.currentSound = target;
+      this.engine.load(target.src);
+    });
 
-			this.cur = song.id;
-			this.core.setUrl(song.url)
-				.then(() => {
-					adjustCore(song);
-					this.core.play();
-					resolve(song);
-				});
-		});
-	}
+    sound.on('pause', (target) => {
+      if (target === this.currentSound) {
+        this.engine.pause();
+      }
+    });
 
-	pause() {
-		this.core.pause();
-		return this;
-	}
+    sound.on('change:volume', (volume, target) => {
+      if (target === this.currentSound) {
+        this.engine.setVolume(volume);
+      }
+    });
 
-	setVolume(song, volume) {
-		if (song.id === this.cur) {
-			this.core.setVolume(volume);
-		}
+    sound.on('change:muted', (muted, target) => {
+      if (target === this.currentSound) {
+        this.engine.setMute(muted);
+      }
+    });
 
-		song.setVolume(volume);
-		return this;
-	}
+    sound.on('change:currenttime', (currentTime, target) => {
+      if (target === this.currentSound) {
+        this.engine.setCurrentTime(currentTime);
+      }
+    });
 
-	setMute(song, muted) {
-		if (song.id === this.cur) {
-			this.core.setMute(muted);
-		}
+    return sound;
+  }
 
-		song.setMute(muted);
-		return this;
-	}
+  reset() {
+    this.sounds.forEach((sound) => sound.off());
+    this.sounds = [];
+    this.currentSound = null;
+  }
 
-	setPosition(song, time) {
-		if (song.id === this.cur) {
-			this.core.setCurrentPosition(time);
-		}
-		return this;
-	}
+  destroy() {
+    this.reset();
+    this.engine.destroy();
+  }
 
-	// to: '00:00'
-	formatTime(time) {
-		return time2str(time);
-	}
+  add(data) {
+    const sound = this.createSound(data);
+    this.sounds.push(sound);
+    return sound;
+  }
 
-	findSong(songId) {
-		return this.list.find(n => n.id === songId);
-	}
+  remove(sound) {
+    let delIndex = -1;
+    this.sounds.forEach((n, i) => {
+      if (sound.id === n.id) {
+        if (sound.id === this.currentSound.id) {
+          this.engine.stop();
+        }
+        sound.off();
+        delIndex = i;
+      }
+    });
+    if (delIndex !== -1) {
+      this.sounds.splice(delIndex, 1);
+    }
+    return delIndex;
+  }
+
+  setEngineAttrs(sound) {
+    const {
+      range: [start], currentTime, volume, muted,
+    } = sound;
+    this.engine.setCurrentTime(start || currentTime)
+      .setVolume(volume)
+      .setMute(muted);
+  }
 }
 
-export {default as STATES} from './states';
-export default Engine;
+export default Soundbox;
