@@ -57,9 +57,9 @@ class Engine extends Events {
       },
       canplay: () => {
         this.trigger('canplay', { duration: this.getDuration() });
-      },
-      canplaythrough: () => {
-        this.canPlayThrough = true;
+        if (this.canPlayThrough) {
+          this.trigger('progress', 1);
+        }
       },
       playing: () => {
         this.errorTimer && clearTimeout(this.errorTimer);
@@ -88,9 +88,10 @@ class Engine extends Events {
 
   reset() {
     this.stop();
+    this.setMute(false);
+    this.setVolume(100);
     this.canPlayThrough = false;
     this.trigger('progress', 0);
-    this.trigger('timeupdate', 0);
     return this;
   }
 
@@ -153,9 +154,7 @@ class Engine extends Events {
   }
 
   play() {
-    if (this.state !== STATES.PLAYING && this.audio.readyState > 2) {
-      this.audio.play();
-    }
+    this.audio.play();
     return this;
   }
 
