@@ -11,28 +11,28 @@ class Soundbox {
   createEngine() {
     const engine = new Engine();
 
-    engine.on('progress', (bufferedPercent) => {
+    engine.on('progress', (bufferedProgress) => {
       if (this.currentSound) {
-        this.currentSound.trigger('progress', bufferedPercent);
+        this.currentSound.trigger('progress', bufferedProgress);
       }
     });
 
     engine.on('canplay', ({ duration }) => {
       if (this.currentSound) {
-        this.engine.play();
         this.currentSound.set('duration', duration, { silent: true });
+        // start 只会在播放的 sound 对象切换时触发
         this.currentSound.trigger('start', this.currentSound);
       }
     });
 
-    engine.on('timeupdate', (currentTime, playedPercent) => {
+    engine.on('timeupdate', (currentTime, playedProgress = 0) => {
       if (this.currentSound) {
         const { range: [, end] } = this.currentSound;
         if (end && currentTime >= end) {
           return engine.stop();
         }
         this.currentSound.setPosition(currentTime, { silent: true });
-        this.currentSound.trigger('positionchange', currentTime, playedPercent);
+        this.currentSound.trigger('positionchange', currentTime, playedProgress);
       }
     });
 
@@ -63,14 +63,10 @@ class Soundbox {
     const sound = new Sound(soundData);
 
     sound.on('play', (target) => {
-      // 把需要播放的 sound 的相关属性（volume, muted 等）更新到引擎
-      this.setEngineAttrs(target);
-
       if (this.currentSound) {
         // 如果期望播放的和之前播放过的是同一个，说明引擎没有切换过音源（比如之前暂停了），可以直接播放
         if (target === this.currentSound) {
           this.engine.play();
-          target.trigger('start', target);
           return;
         }
 
@@ -79,18 +75,20 @@ class Soundbox {
         this.engine.stop();
 
         // sound 不同，但音源相同，则直接更新当前播放的 sound 为 target，
+        // 重新设置引擎属性自动触发 `canplay` 事件
         if (target.src === this.currentSound.src) {
           this.currentSound = target;
+          this.setEngineAttrs(target);
           this.engine.play();
-          target.set('duration', this.engine.getDuration());
-          target.trigger('start', target);
           return;
         }
       }
 
-      // 新的音源，则需要重新加载引擎，当可播放时会触发引擎 `canplay` 事件
+      // 新的音源，则需要重新加载引擎，设置引擎属性时会自动触发 `canplay` 事件
       this.currentSound = target;
+      this.setEngineAttrs(target);
       this.engine.load(target.src);
+      this.engine.play();
     });
 
     sound.on('pause', (target) => {
@@ -138,6 +136,10 @@ class Soundbox {
   }
 
   remove(sound) {
+    if (!sound) {
+      return -1;
+    }
+
     let delIndex = -1;
     this.sounds.forEach((n, i) => {
       if (sound.id === n.id) {
