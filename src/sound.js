@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import Events from '@totebox/events';
-import { type, formatTime } from '@totebox/util';
+import { type } from '@totebox/util';
 import STATES from './states';
 
 let id = 0;
@@ -74,12 +74,5 @@ export default class Sound extends Events {
     if (type(volume) === 'number') {
       this.set('volume', volume);
     }
-  }
-
-  getFormatedTime(attr) {
-    if (['currentTime', 'duration'].includes(attr)) {
-      return formatTime(this[attr] * 1000);
-    }
-    return '';
   }
 }
