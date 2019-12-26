@@ -1,7 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import Events from '@totebox/events';
 import { type } from '@totebox/util';
-import STATES from './states';
 
 let id = 0;
 
@@ -22,7 +21,6 @@ export default class Sound extends Events {
     this.range = range;
     this.duration = 0;
     this.currentTime = 0;
-    this.STATES = STATES;
     this.initEvents();
   }
 

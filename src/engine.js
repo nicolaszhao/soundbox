@@ -149,16 +149,14 @@ class Engine extends Events {
     return this.state;
   }
 
-  async play(src) {
-    try {
-      if (src) {
-        this.audio.src = src;
-        this.audio.load();
-      }
-      await this.audio.play();
-    } catch (err) {
-      // ignore
+  play(src) {
+    if (src) {
+      this.audio.src = src;
+      this.audio.load();
     }
+    this.audio.play().catch(() => {
+      // ignore
+    });
     return this;
   }
 

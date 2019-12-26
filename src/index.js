@@ -167,3 +167,4 @@ class Soundbox {
 }
 
 export default Soundbox;
+export { default as STATES } from './states';
