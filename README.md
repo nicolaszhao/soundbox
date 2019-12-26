@@ -1,280 +1,166 @@
 # @nicolaz/soundbox
 
-HTML5 Audio的高级封装API对象。提供了可在React，Angular等组件化的框架中灵活调用的API。源码使用最流行的ES6语法编写，如果你要修改代码，
-请clone到本地后，自行`npm install`，然后运行`npm run build:dev`打包即可。
+HTML5 Audio 的高级封装，并拥有可添加和控制多个音频的能力。
 
 ## 快速上手
-1. 使用[npm](https://docs.npmjs.com)安装到你的项目中：`npm install --save audio-engine`
 
-2. 使用commonjs或者es6模块方式导入：
-    ````
-    var AudioEngine = require('audio-engine');
-    //
-    // 或者
-    import AudioEngine from 'audio-engine';
-    ````
+### 安装
 
-3. 实例化对象，并创建一首歌曲对象来播放：
-    ````
-    // 在组件构造函数外实例化对象
-    let audioEngine = new AudioEngine();
-    //
-    // 在组件componentDidMount方法中创建song对象
-    let song = audioEngine.add({url: 'your-music-url'});
-    //
-    // 在组件的handler事件中播放song对象
-    audioEngine.play(song);
-    ````
+```
+npm i @nicolaz/soundbox
+```
 
-## Engine的方法
+### 使用
 
-* add(song)
+```js
+import Soundbox from '@nicolaz/soundbox';
 
-    提供一个song对象需要的基本信息，创建一个song对象的实例。一般在组件生命周期创建时使用，比如React的componentDidMount方法。
+const soundbox = new Soundbox();
+const sound = soundbox.add({ src: /*AUDIO_URL*/ });
+sound.play();
+```
 
-    **song: (Object)**
+## API
 
-    song实例对象需要的基本信息
+### Soundbox
 
-    * url: (Sting), 必选， 播放资源的url
-    * volume: (Number)，可选，默认值`100`
-    * muted: (Boolean)，可选，默认值`false`
-    * startTime: (Number), 可选，默认值`0`
-    * endTime: (Number), 可选，默认值`0`
+#### add( soundData )
 
-* remove(song)
+**soundData:** [Object]
 
-    删除队列中的song实例，删除后该song不能被用来播放和使用了。一般在组件的生命周期销毁前使用，比如React的componentWillUnmount方法
+音频数据，比如：
 
-    **song: (Object)**
+```
+{
+  src: "...",
+  volume: 50,
+}
+```
 
-    通过`add(song)`方法创建的song实例
+执行 `add` 方法后，返回一个 `sound` 对象。
 
-* play(song)
+#### remove( sound )
 
-    播放歌曲
+**sound:** [Sound]
 
-    **song: (Object)**
+通过 `add` 方法生成的对象。删除成功，返回 `soundbox` 中音频对象列表的索引，否则返回 `-1`。
 
-    通过`add(song)`方法创建的song实例
+#### reset()
 
-* pause()
+重置 `soundbox`，这会清理所有 `add` 的 `sound`。
 
-    暂停当前播放的歌曲
+#### destroy()
 
-* setVolume(song, volume)
+`soundbox` 不再使用，调用后 `soundbox` 不再工作。如你要重新使用，需要重新 `new` 一个实例。
 
-    设置提供的song实例的音量，数据会独立保存
+### Sound
 
-    **song: (Object)**
+通过 `soundbox.add` 返回的对象，执行 `soundbox.add` 时，可传入如下属性：
 
-    通过`add(song)`方法创建的song实例
+* **src:** 音频地址
+* **volume:** 音频音量
+* **muted:** 音频是否静音
+* **range[Array]:** 包含 2 个时间值的数组 `[start, end]`，表示一个音频在时间轴上可播放的范围
 
-    **volume: (Number)**
+#### play()
 
-    歌曲音量值，数值范围在0 - 100间
+非同一个 `sound` 执行 `play`，会触发 `start` 事件
 
-* setMute(song, muted)
+#### pause()
 
-    设置提供的song实例的静音状态，数据会独立保存
+非播放中的 `sound` 执行无效
 
-    **song: (Object)**
+#### setPosition( time )
 
-    通过`add(song)`方法创建的song实例
+**time:** [Number]|秒
 
-    **muted: (Boolean)**
+设置播放进度，如果为当前播放音频，会触发 `positionchange` 事件。没 `play` 过的 `sound` 执行无效，你也不应该为非播放中的 `sound` 设置播放进度，可在外部通过 `state` 来判断处理。
 
-    是否设置为静音的值
+#### setMute( muted )
 
-* setPosition(song, time)
+**muted:** [Boolean]
 
-    设置提供的song实例的播放进度，一般用于用户手动改变进度条时调用该方法。
+设置是否静音
 
-    **song: (Object)**
+#### setVolume( volume )
 
-    通过`add(song)`方法创建的song实例
+**volume:** [Number]|0-100
 
-    **time: (Number)**
+### Sound Events
 
-    歌曲进度的时间，时间单位为秒
+通过 `sound` 对象的 `on(type, handler)` 方法绑定
 
+#### progress
 
-* formatTime(time)
+缓冲进度变化时触发
 
-    格式化时间为"00:00"格式的字符串
+**handler( bufferedProgress )** 
 
-    **time: (Number)**
+**bufferedProgress:** [Number]|0-1
 
-    歌曲时间，时间单位为秒
+#### start
 
-* reset()
+新音频/音频切换，并开始播放时触发
 
-    重置engine对象到最初状态，删除song队列的所有实例
+**handler( data )**
 
-* destroy()
+**data:** [Object]|{ duration }
 
-    彻底销毁engine对象的使用，删除属性core的事件绑定，调用该方法后，engine对象不能再使用，除非重新实例化
+#### statechange
 
-## Song的事件类型
+音频状态更新时触发
 
-* progress: handler(bufferedPercent)
+**handler( state )**
 
-    资源缓冲进度时触发。
+**state:** [String]
 
-    **bufferedPercent: (Number)**
+见下方的 `STATES`
 
-    缓冲进度百分比值，数值范围为0 - 1
+#### positionchange
 
-* error: handler(Error)
+音频时间进度更改时触发
 
-    资源播放发生错误时触发
+**handler( currentTime, playedProgress )**
 
-    **Error: (Error Object)**
+**currentTime:** [Number]
 
-    发生错误时会返回详细的错误信息，包括错误码
+当前播放的时间
 
-* positionchange: handler(currentTime, playedPercent)
+**playedProgress:** [Number]|0-1
 
-    资源播放进度发生变化时触发
+#### error
 
-    **currentTime: (Number)**
+音频播放错误时触发
 
-    当前播放的时间，时间单位为秒
+**handler( Error )**
 
-    **playedPercent: (Number)**
+### STATES
 
-    播放进度百分比值，数值范围为0 - 1
+直接从安装包导入:
 
-* statechange: handler(state)
+```js
+import { STATES } from '@nicolaz/soundbox'
+```
 
-    资源播放状态发生变化时触发，比如playing, pause, buffering等
+`STATES` 包含以下属性：
 
-    **state: (String)**
+* `PREBUFFER`: 'waiting'
 
-    资源播放状态，可选值：Engine.PREBUFFER, Engine.BUFFERING, Engine.PLAYING, Engine.PAUSE, Engine.STOP, Engine.END
+* `BUFFERING`: 'loadeddata'
 
-## React组件使用示例
+* `PLAYING`: 'playing'
 
-1. 实例化Engine：`let audioEngine = new AudioEngine()`
+* `PAUSE`: 'pause'
 
-2. 组件构造器中定义state：
-    ````
-    constructor(props) {
-        super(props);
+* `STOP`: 'suspend'
 
-        this.state = {
-            paused: true,
-            buffering: false,
-            progress: 0,
-            buffered: 0,
-            currentTime: 0,
-            duration: 0,
-        };
-
-        this.song = null;
-    }
-    ````
-
-3. 创建song实例：
-    ````
-    componentDidMount() {
-        let { src } = this.props;
-
-        this.song = audioEngine.add({
-            url: src
-        });
-
-        this.song
-            .on('progress', (bufferedPercent) => {
-                this.setState({
-                    buffered: bufferedPercent * 100
-                });
-            })
-            .on('error', (err) => {
-                this.setState({
-                    errorMessage: err.message
-                });
-            })
-            .on('positionchange', (currentTime, playedPercent) => {
-                this.setState({
-                    progress: playedPercent * 100,
-                    currentTime: currentTime
-                });
-            })
-            .on('statechange', (state) => {
-                let buffering = false,
-                    paused = true;
-
-                if (state === STATES.BUFFERING || state === STATES.PREBUFFER) {
-                    buffering = true;
-                } else if (state === STATES.PLAYING) {
-                    paused = false;
-                }
-
-                this.setState({
-                    buffering,
-                    paused
-                });
-            });
-    }
-    ````
-
-4. 播放暂停状态切换：
-    ````
-    handlePlay() {
-        if (this.state.paused) {
-            audioEngine.play(this.song)
-                .then((song) => {
-                    this.setState({
-                        duration: song.duration
-                    });
-                });
-        } else {
-            audioEngine.pause();
-        }
-    }
-    ````
-
-5. render方法中渲染：
-    ````
-    render() {
-        let { buffered, progress, paused, currentTime, duration, buffering } = this.state,
-
-            iconType = paused ? 'play-circle-o' : 'pause-circle-o';
-
-        let wrapperClassName = ['audio-player'];
-
-        if (buffering) {
-            wrapperClassName.push('audio-player-state-buffering');
-        }
-
-        currentTime = audioEngine.formatTime(currentTime);
-        duration = audioEngine.formatTime(duration);
-
-        return (
-            <div className={wrapperClassName.join(' ')}>
-                <div className="audio-player-wrapper">
-                    <button className="audio-player-button audio-player-button-play" onClick={() => {this.handlePlay()}}>
-                        <Icon type={iconType} />
-                        <Icon type="loading" />
-                    </button>
-                    <div className="audio-player-progressbar">
-                        <div className="audio-player-progressbar-playing-value" style={{width: `${progress}%`}}></div>
-                        <div className="audio-player-progressbar-buffering-value" style={{width: `${buffered}%`}}></div>
-                    </div>
-                    <div className="audio-player-duration">
-                        <span className="audio-player-duration-current">{currentTime}</span>
-                        <span className="audio-player-duration-total">{duration}</span>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-    ````
-
-6. 销毁song实例：
-    ````
-    componentWillUnmount() {
-        audioEngine.remove(this.song);
-    }
-    ````
+* `END`: 'ended'
+
+## Demo
+
+这里有一个 React 组件的示例：[Demo](./demo.js)
+
+## LICENSE
+
+[MIT](https://github.com/nicolaszhao/soundbox/blob/master/LICENSE) © [nicolaszhao](https://github.com/nicolaszhao)
+
