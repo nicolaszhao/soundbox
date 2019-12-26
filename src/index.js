@@ -31,7 +31,7 @@ class Soundbox {
         if (end && currentTime >= end) {
           return engine.stop();
         }
-        this.currentSound.setPosition(currentTime, { silent: true });
+        currentTime && this.currentSound.setPosition(currentTime, { silent: true });
         this.currentSound.trigger('positionchange', currentTime, playedProgress);
       }
     });
@@ -78,17 +78,16 @@ class Soundbox {
         // 重新设置引擎属性自动触发 `canplay` 事件
         if (target.src === this.currentSound.src) {
           this.currentSound = target;
-          this.setEngineAttrs(target);
           this.engine.play();
+          this.setEngineAttrs(target);
           return;
         }
       }
 
       // 新的音源，则需要重新加载引擎，设置引擎属性时会自动触发 `canplay` 事件
       this.currentSound = target;
+      this.engine.play(target.src);
       this.setEngineAttrs(target);
-      this.engine.load(target.src);
-      this.engine.play();
     });
 
     sound.on('pause', (target) => {
@@ -122,6 +121,7 @@ class Soundbox {
     this.sounds.forEach((sound) => sound.off());
     this.sounds = [];
     this.currentSound = null;
+    this.engine.reset();
   }
 
   destroy() {

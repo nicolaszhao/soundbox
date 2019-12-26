@@ -65,14 +65,10 @@ export default class Sound extends Events {
   }
 
   setMute(muted) {
-    if (type(muted) === 'boolean') {
-      this.set('muted', muted);
-    }
+    this.set('muted', !!muted);
   }
 
   setVolume(volume) {
-    if (type(volume) === 'number') {
-      this.set('volume', volume);
-    }
+    this.set('volume', +volume || 0);
   }
 }

@@ -57,6 +57,7 @@ class Engine extends Events {
       },
       canplay: () => {
         this.trigger('canplay', { duration: this.getDuration() });
+        // 播放已经加载成功，且是同一个音源时，audio 的 `progress` 不执行，需要手动触发 engine 的 `progress`
         if (this.canPlayThrough) {
           this.trigger('progress', 1);
         }
@@ -65,9 +66,9 @@ class Engine extends Events {
         this.errorTimer && clearTimeout(this.errorTimer);
         this.setState(STATES.PLAYING);
       },
-      error: (err) => {
+      error: () => {
         this.errorTimer && clearTimeout(this.errorTimer);
-        this.errorTimer = setTimeout(() => this.trigger('error', err), 2000);
+        this.errorTimer = setTimeout(() => this.trigger('error', this.audio.error), 1000);
       },
       ended: () => {
         this.setState(STATES.END);
@@ -148,13 +149,16 @@ class Engine extends Events {
     return this.state;
   }
 
-  load(src) {
-    this.audio.src = src;
-    this.audio.load();
-  }
-
-  play() {
-    this.audio.play();
+  async play(src) {
+    try {
+      if (src) {
+        this.audio.src = src;
+        this.audio.load();
+      }
+      await this.audio.play();
+    } catch (err) {
+      // ignore
+    }
     return this;
   }
 
